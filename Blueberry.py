@@ -182,7 +182,6 @@ if __name__ == "__main__":
 
  
     bby = Blueberry(mac, callback=my_callback, debug=debug)
-    bby.start()
-    time.sleep(30)
+    bby.start() #this is blocking
     bby.stop()
     save_file.close()
