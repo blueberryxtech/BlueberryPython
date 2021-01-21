@@ -1,4 +1,4 @@
-# Blueberry Python Connect App
+# Blueberry Python SDK
 
 Connect to Blueberry brain sensing pod from Linux, MacOS, RasbperryPi, and Windows.
 
@@ -33,7 +33,7 @@ Should work in Windows 10. Not tested.
 
 ## Scripts
 
-bby_stream.py - connect, see data, and save data to a file  
+Blueberry.py - connect, see data, and save data to a file  
 bby_data_plot.py - plot data created with bby_stream.py  
 list_devices.py - scan Bluetooth to find your Blueberry  
 bby_details.py - see information about your Blueberry
