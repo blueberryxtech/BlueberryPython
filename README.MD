@@ -47,13 +47,33 @@ python3 list_bbys.py
 
 Now connect to the unit that you want stream from:
 ```
-python3 bby_stream.py -a <Blueberry MAC address> -s -d -f <filename of csv>
+python3 Blueberry.py -a <Blueberry MAC address> -d
 ```
 
 Now plot the data:  
 ```
-python3 bby_data_plot.py -f test.csv
+python3 bby_data_plot.py -f <name of csv file.csv>
 ```
+
+## Use in your own code
+
+Blueberry.py file has a class `Blueberry` that is designed to be imported into your project. Just instantiate the class, pass in the device address and a callback, and use the start() function to start connecting and streaming. The callback should accept one dictionary arguement which is structured as follows:
+
+LONG path response:
+```
+{'path': 'long_path', 'packet_index': 59, 'channel1': 194, 'channel2': 261, 'channel3': 317, 'sp': 154, 'dp': 55, 'hr': 0, 'hrv': 0, 'ml': 70, 'temperature': 5397}
+```
+SHORT path response:
+```
+{'path': 'short_path', 'packet_index': 11, 'channel1': 29074, 'channel2': 13263, 'channel3': 76933}
+```
+### Estimated Metrics (not for medical use, experimental):
+DP = diastolic blood pressure
+SP = systolic blood pressure
+HR = heart rate
+HRV = heart rate variability
+ML = mental_load
+temperature = body temperature (experimental)
 
 ## Help
 
