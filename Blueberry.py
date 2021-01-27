@@ -73,7 +73,7 @@ class Blueberry:
             return None
         #unpack packet
         aa = bitstring.Bits(bytes=packet)
-        if data["path"] == "long_path":
+        if data["path"] == "long_path" and len(packet) >= 21:
             pattern = "uintbe:8,uintbe:8,intbe:32,intbe:32,intbe:32,uintbe:8,uintbe:8,uintbe:8,uintbe:8,uintbe:8,uintbe:16"
             res = aa.unpack(pattern)
             data["packet_index"] = res[1]
@@ -86,6 +86,7 @@ class Blueberry:
             data["hrv"] = res[8]
             data["ml"] = res[9]
             data["temperature"] = res[10]
+            data["big"] = True #big: whether or not the extra metrics were packed in
         else:
             pattern = "uintbe:8,uintbe:8,intbe:32,intbe:32,intbe:32,uintbe:8,uintbe:8"
             res = aa.unpack(pattern)
@@ -93,6 +94,7 @@ class Blueberry:
             data["channel1"] = res[2] #740
             data["channel2"] = res[3] #880
             data["channel3"] = res[4] #850
+            data["big"] = False #big: whether or not the extra metrics were packed in
         return data
 
     def notification_handler(self, sender, data):
@@ -106,7 +108,7 @@ class Blueberry:
         c2 = data["channel2"]
         c3 = data["channel3"]
 
-        if data["path"] == "long_path":
+        if data["path"] == "long_path" and data["big"] == True:
             sp = data["sp"]
             dp = data["dp"]
             hr = data["hr"]
@@ -115,7 +117,7 @@ class Blueberry:
             temperature = data["temperature"]
 
         if self.debug:
-            if data["path"] == "long_path":
+            if data["path"] == "long_path" and data["big"] == True:
                 print("Blueberry: {}, path: {}, index: {}, C1: {}, C2: {}, C3: {}, SP : {}, DP : {}, HR : {}, HRV : {}, ML : {}, temperature : {},".format(sender, path, idx, c1, c2, c3, sp, dp, hr, hrv, ml, temperature))
             else:
                 print("Blueberry: {}, path: {}, index: {}, C1: {}, C2: {}, C3: {}".format(sender, path, idx, c1, c2, c3))
@@ -175,7 +177,7 @@ if __name__ == "__main__":
         c3 = data["channel3"]
 
         if save:
-            if data["path"] == "long_path":
+            if data["path"] == "long_path" and data["big"] == True:
                     save_file.write("{},{},{},{},{},{}\n".format(time.time(), idx, path, c1, c2, c3))
             else:
                     save_file.write("{},{},{},{},{},{}\n".format(time.time(), idx, path, c1, c2, c3))
