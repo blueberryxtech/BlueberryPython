@@ -15,6 +15,8 @@ import sys
 from bleak import BleakClient
 
 
+LONG_CHAR = "3f3e3d3c-3b3a-3938-3736-353433323130"
+SHORT_CHAR = "2f2e2d2c-2b2a-2928-2726-252423222120"
 async def run(address, debug=False):
     log = logging.getLogger(__name__)
     if debug:
@@ -29,9 +31,16 @@ async def run(address, debug=False):
         x = await client.is_connected()
         log.info("Connected: {0}".format(x))
 
+        long_handle = None
+        short_handle = None
         for service in client.services:
             log.info("[Service] {0}: {1}".format(service.uuid, service.description))
             for char in service.characteristics:
+                if (char.uuid == LONG_CHAR):
+                    long_handle = char.handle
+                if (char.uuid == SHORT_CHAR):
+                    short_handle = char.handle
+
                 if "read" in char.properties:
                     try:
                         value = bytes(await client.read_gatt_char(char.uuid))
@@ -55,6 +64,9 @@ async def run(address, debug=False):
                             descriptor.uuid, descriptor.handle, bytes(value)
                         )
                     )
+        print("\n\n\nVALUES TO ADD TO bbxChars object: ")
+        print("LONG CHARACTERISTIC HANDLE: {}".format(long_handle))
+        print("SHORT CHARACTERISTIC HANDLE: {}".format(short_handle))
 
 
 if __name__ == "__main__":
@@ -64,11 +76,6 @@ if __name__ == "__main__":
         sys.exit()
 
     mac = sys.argv[1]
-    address = (
-        mac
-        if platform.system() != "Darwin"
-        else "B9EA5233-37EF-4DD6-87A8-2A875E821C46"
-    )
     loop = asyncio.get_event_loop()
     loop.set_debug(True)
-    loop.run_until_complete(run(address, True))
+    loop.run_until_complete(run(mac, True))

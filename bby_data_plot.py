@@ -36,7 +36,7 @@ if __name__ == "__main__":
     s_c2 = tmp["c2"].to_numpy()
     s_c3 = tmp["c3"].to_numpy()
 
-    fig, axs = plt.subplots(2,1)
+    fig, axs = plt.subplots(2,1, sharex=True)
     #plot long
     axs[0].plot(l_c1, label="740")
     axs[0].plot(l_c2, label="850")
