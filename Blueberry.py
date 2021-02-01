@@ -69,14 +69,15 @@ class Blueberry:
                 data["path"] = self.bbxchars[char]["name"]
                 break
         if data["path"] == None:
-            print("Error: Unknown handle number. See: https://github.com/blueberryxtech/BlueberryPython/issues/1 or reach out to cayden@blueberryx.com")
-            return None
+            print("Error unknown handle number: {}. See: https://github.com/blueberryxtech/BlueberryPython/issues/1 or reach out to cayden@blueberryx.com".format(sender))
+            sys.exit()
         #unpack packet
         aa = bitstring.Bits(bytes=packet)
         if data["path"] == "long_path" and len(packet) >= 21:
             pattern = "uintbe:8,uintbe:8,intbe:32,intbe:32,intbe:32,uintbe:8,uintbe:8,uintbe:8,uintbe:8,uintbe:8,uintbe:16"
             res = aa.unpack(pattern)
-            data["packet_index"] = res[1]
+            data["packet_index"] = res[0]
+            data["sample_index"] = res[1]
             data["channel1"] = res[2] #740
             data["channel2"] = res[3] #880
             data["channel3"] = res[4] #850
@@ -90,7 +91,8 @@ class Blueberry:
         else:
             pattern = "uintbe:8,uintbe:8,intbe:32,intbe:32,intbe:32,uintbe:8,uintbe:8"
             res = aa.unpack(pattern)
-            data["packet_index"] = res[1]
+            data["packet_index"] = res[0]
+            data["sample_index"] = res[1]
             data["channel1"] = res[2] #740
             data["channel2"] = res[3] #880
             data["channel3"] = res[4] #850
@@ -102,7 +104,8 @@ class Blueberry:
         data = self.unpack_fnirs(sender, data)
         if data is None:
             return
-        idx = data["packet_index"]
+        p_idx = data["packet_index"]
+        s_idx = data["sample_index"]
         path = data["path"]
         c1 = data["channel1"]
         c2 = data["channel2"]
@@ -118,9 +121,9 @@ class Blueberry:
 
         if self.debug:
             if data["path"] == "long_path" and data["big"] == True:
-                print("Blueberry: {}, path: {}, index: {}, C1: {}, C2: {}, C3: {}, SP : {}, DP : {}, HR : {}, HRV : {}, ML : {}, temperature : {},".format(sender, path, idx, c1, c2, c3, sp, dp, hr, hrv, ml, temperature))
+                print("Blueberry: {}, path: {}, index: {}, C1: {}, C2: {}, C3: {}, SP : {}, DP : {}, HR : {}, HRV : {}, ML : {}, temperature : {},".format(sender, path, p_idx, c1, c2, c3, sp, dp, hr, hrv, ml, temperature))
             else:
-                print("Blueberry: {}, path: {}, index: {}, C1: {}, C2: {}, C3: {}".format(sender, path, idx, c1, c2, c3))
+                print("Blueberry: {}, path: {}, index: {}, C1: {}, C2: {}, C3: {}".format(sender, path, p_idx, c1, c2, c3))
 
         if self.callback is not None:
             self.callback(data)

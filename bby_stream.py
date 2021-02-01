@@ -58,7 +58,7 @@ def unpack_fnirs(sender, packet):
             data["path"] = bbxchars[char]["name"]
             break
     if data["path"] == None:
-        print("Error: Unknown handle number. See: https://github.com/blueberryxtech/BlueberryPython/issues/1 or reach out to cayden@blueberryx.com")
+        print("Error unknown handle number: {}. See: https://github.com/blueberryxtech/BlueberryPython/issues/1 or reach out to cayden@blueberryx.com".format(sender))
         sys.exit()
     #unpack packet
     aa = bitstring.Bits(bytes=packet)
