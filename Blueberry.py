@@ -45,7 +45,7 @@ class Blueberry:
                     "longFnirsCharacteristic": {
                             "name": 'long_path',
                                 "uuid": '3f3e3d3c-3b3a-3938-3736-353433323130',
-                                "handles": [23, 30],
+                                "handles": [23, 31],
                                   }
 
                     }
