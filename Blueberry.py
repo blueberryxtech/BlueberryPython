@@ -45,7 +45,7 @@ class Blueberry:
                     "longFnirsCharacteristic": {
                             "name": 'long_path',
                                 "uuid": '3f3e3d3c-3b3a-3938-3736-353433323130',
-                                "handles": [23, 31],
+                                "handles": [23, 30],
                                   }
 
                     }
@@ -70,7 +70,7 @@ class Blueberry:
                 break
         if data["path"] == None:
             print("Error unknown handle number: {}. See: https://github.com/blueberryxtech/BlueberryPython/issues/1 or reach out to cayden@blueberryx.com".format(sender))
-            sys.exit()
+            return None
         #unpack packet
         aa = bitstring.Bits(bytes=packet)
         if data["path"] == "long_path" and len(packet) >= 21:
