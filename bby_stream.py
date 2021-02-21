@@ -27,12 +27,12 @@ bbxchars={
             "shortFnirsCharacteristic": {
                     "name": 'short_path',
                         "uuid": '2f2e2d2c-2b2a-2928-2726-252423222120',
-                        "handles": [20, 27],
+                        "handles": [19, 20, 27],
                           },
             "longFnirsCharacteristic": {
                     "name": 'long_path',
                         "uuid": '3f3e3d3c-3b3a-3938-3736-353433323130',
-                        "handles": [23, 31],
+                        "handles": [22, 23, 31],
                           }
 
             }
