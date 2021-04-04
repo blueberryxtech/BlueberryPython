@@ -11,22 +11,26 @@ import platform
 import bitstring
 import argparse
 import time
+import signal
+import atexit
 
 from bleak import BleakClient 
 from bleak import _logger as logger
 
+global bby, bby_task, bby_killer_task
 
 class Blueberry:
+    """
+    Blueberry class to be instantatied in users' programs and used to stream from the Blueberry"
+    Works in Windows, Linux, MacOS, and Raspberry Pi
+    Be aware that the "run()" funcation is asynchronous with asyncio, so it must be handled as such. - see the example scripts for how to deal with it.
+    """
     def __init__(self, device_address, callback=None, debug=False):
-        #translate address to be multi-platform
-#        self.device_address = (
-#            device_address # <--- Change to your device's address here if you are using Windows or Linux
-#            if platform.system() != "Darwin"
-#            else mac # <--- Change to your device's address here if you are using macOS
-#        )
         self.device_address = device_address
         self.callback = callback
         self.debug = debug
+
+        self.client = None
         
         #Blueberry glasses GATT server characteristics information
         self.bbxService={"name": 'fnirs service',
@@ -40,12 +44,12 @@ class Blueberry:
                     "shortFnirsCharacteristic": {
                             "name": 'short_path',
                                 "uuid": '2f2e2d2c-2b2a-2928-2726-252423222120',
-                                "handles": [20, 27],
+                                "handles": [19, 20, 27, 47],
                                   },
                     "longFnirsCharacteristic": {
                             "name": 'long_path',
                                 "uuid": '3f3e3d3c-3b3a-3938-3736-353433323130',
-                                "handles": [23, 31],
+                                "handles": [23, 31, 22, 51],
                                   }
 
                     }
@@ -55,6 +59,19 @@ class Blueberry:
         #logging
         self.l = None
         self.h = None
+
+        #stop if killed
+        # Clean up connections, etc. when exiting (even by KeyboardInterrupt)
+        #atexit.register(self.stop)
+
+    def _cleanup(self):
+        """Clean up connections, so that the underlying OS software does not
+        leave them open.
+        """
+        # Use a copy of the list because each connection will be deleted
+        # on disconnect().
+        for connection in self._connections.copy():
+            connection.disconnect()
 
     #unpack fNIRS byte string
     def unpack_fnirs(self, sender, packet):
@@ -128,35 +145,43 @@ class Blueberry:
         if self.callback is not None:
             self.callback(data)
 
-    def start(self):
-        #start stream
-        self.stream = True
-        #start main loop
-        loop = asyncio.get_event_loop()
-        # loop.set_debug(True)
-        loop.run_until_complete(self.run(self.device_address, self.debug))
-
-    def stop(self):
+    async def stop(self):
         #stop stream
+        print("Quitting, but first must disconnect...")
         self.stream = False
+        await asyncio.sleep(0.2)
+        if self.client != None:
+            await self.client.disconnect()
 
-    async def run(self, address, debug):
+    async def run(self):
+        self.stream = True
+
+        #connect and stream
         SHORT_PATH_CHAR_UUID = self.bbxchars["shortFnirsCharacteristic"]["uuid"]
         LONG_PATH_CHAR_UUID = self.bbxchars["longFnirsCharacteristic"]["uuid"]
 
         print("Trying to connect...")
-        async with BleakClient(address) as client:
-            x = await client.is_connected()
-            print("Connected to: {0}".format(x))
+        async with BleakClient(self.device_address) as self.client:
+            x = await self.client.is_connected()
+            print("Connected to: {0}".format(self.device_address))
 
-            await client.start_notify(SHORT_PATH_CHAR_UUID, self.notification_handler)
-            await client.start_notify(LONG_PATH_CHAR_UUID, self.notification_handler)
+            await self.client.start_notify(SHORT_PATH_CHAR_UUID, self.notification_handler)
+            await self.client.start_notify(LONG_PATH_CHAR_UUID, self.notification_handler)
             while self.stream:
                 await asyncio.sleep(0.1)
-            await client.stop_notify(SHORT_PATH_CHAR_UUID)
-            await client.stop_notify(LONG_PATH_CHAR_UUID)
+            await self.client.stop_notify(SHORT_PATH_CHAR_UUID)
+            await self.client.stop_notify(LONG_PATH_CHAR_UUID)
+        print("Blueberry disconnected.")
 
-if __name__ == "__main__":
+async def sleeper(bby):
+    for i in range(0, 25):
+        print(i)
+        await asyncio.sleep(1)
+    await bby.stop()
+
+async def main():
+    global bby, bby_task, bby_killer_task
+
     parser = argparse.ArgumentParser()
     parser.add_argument("-a","--address", help="MAC address of the blueberry")
     parser.add_argument("-d", "--debug", help="debug", action='store_true')
@@ -171,8 +196,11 @@ if __name__ == "__main__":
     save = True
     save_file = open("{}.csv".format(time.time()), "w+")
     save_file.write("timestamp,idx,path,c1,c2,c3\n")
+
     def my_callback(data):
-        print(data)
+        """
+        This is called and passed the blueberry data evertime a new data point is received by the Blueberry over bluetooth
+        """
         idx = data["packet_index"]
         path = data["path"]
         c1 = data["channel1"]
@@ -186,7 +214,33 @@ if __name__ == "__main__":
                     save_file.write("{},{},{},{},{},{}\n".format(time.time(), idx, path, c1, c2, c3))
 
  
+    #create blueberry instance
     bby = Blueberry(mac, callback=my_callback, debug=debug)
-    bby.start() #this is blocking
-    bby.stop()
+
+    #start a task to connect to and stream from the blueberry
+    bby_task = asyncio.create_task(bby.run())
+    #start a task that waits 15 seconds and then terminates the blueberry task
+    bby_killer_task = asyncio.create_task(sleeper(bby))
+    #setup program killer
+    #signal.signal(signal.SIGINT, signal_handler)
+
+    await bby_task, bby_killer_task
     save_file.close()
+
+async def shutdown():
+    global bby, bby_task, bby_killer_task
+    bby_killer_task.cancel()
+    await bby.stop()
+    await bby_task, bby_killer_task
+
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    #handle kill events (Ctrl-C)
+    for signame in ('SIGINT', 'SIGTERM'):
+        loop.add_signal_handler(getattr(signal, signame),
+                                lambda: asyncio.ensure_future(shutdown()))
+    try:
+        loop.run_until_complete(main())
+    finally:
+        loop.close()
+

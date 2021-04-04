@@ -1,5 +1,5 @@
 matplotlib==3.2.0
 bleak==0.10.0
 numpy==1.18.1
-pandas==1.0.4
-bitstring==3.1.7
+pandas
+bitstring
