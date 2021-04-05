@@ -33,9 +33,14 @@ Ubuntu 20, MacOS, Raspberry Pi 3B+.
 Should work in Windows 10. Not tested.
 
 ## Scripts
+
+### Main Example - `bby_stream.py`
+
+bby_stream.py - connect, see data, and save data to a file - 25 second wait then dies
+
 ### Main Class - `Blueberry`
 
-Blueberry.py - connect, see data, and save data to a file - 25 second wait then dies
+Blueberry.py - connect and stream data from a blueberry in your own programs.
 Blueberry.py contains the class Blueberry which is first instantiated by passing in the device address, parameters, and a callback function.
 The callback function is run every time new data is received over Bluetooth - this is how your programs can receive data from the Blueberry.
 Call the `run()` function of this class to start streaming data. This is an asyncio asynchronous function, so treat it as such (see Blueberry.py main function for an example of how to do so).
