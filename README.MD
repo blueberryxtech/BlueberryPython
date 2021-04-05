@@ -29,8 +29,7 @@ Good to go!
 
 ## Tested
 
-Ubuntu 20, MacOS, Raspberry Pi 3B+.
-Should work in Windows 10. Not tested.
+Ubuntu 20, MacOS, Raspberry Pi 3B+ have been tested to work.  
 
 ## Scripts
 
