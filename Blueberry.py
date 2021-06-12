@@ -101,8 +101,8 @@ class Blueberry:
             data["channel1"] = res[2] #740
             data["channel2"] = res[3] #880
             data["channel3"] = res[4] #850
-            data["sp"] = res[5]
-            data["dp"] = res[6]
+            data["ptt_mean_amplitude"] = res[5]
+            data["ptt_ratio"] = res[6]
             data["hr"] = res[7]
             data["hrv"] = res[8]
             data["ml"] = res[9]
@@ -132,8 +132,8 @@ class Blueberry:
         c3 = data["channel3"]
 
         if data["path"] == "long_path" and data["big"] == True:
-            sp = data["sp"]
-            dp = data["dp"]
+            ptt_mean_amplitude = data["ptt_mean_amplitude"]
+            ptt_ratio = data["ptt_ratio"]
             hr = data["hr"]
             hrv = data["hrv"]
             ml = data["ml"]
@@ -141,7 +141,7 @@ class Blueberry:
 
         if self.debug:
             if data["path"] == "long_path" and data["big"] == True:
-                print("Blueberry: {}, path: {}, index: {}, C1: {}, C2: {}, C3: {}, SP : {}, DP : {}, HR : {}, HRV : {}, ML : {}, temperature : {},".format(sender, path, p_idx, c1, c2, c3, sp, dp, hr, hrv, ml, temperature))
+                print("Blueberry: {}, path: {}, index: {}, C1: {}, C2: {}, C3: {}, ptt_mean_amplitude : {}, ptt_ratio : {}, HR : {}, HRV : {}, ML : {}, temperature : {},".format(sender, path, p_idx, c1, c2, c3, ptt_mean_amplitude, ptt_ratio, hr, hrv, ml, temperature))
             else:
                 print("Blueberry: {}, path: {}, index: {}, C1: {}, C2: {}, C3: {}".format(sender, path, p_idx, c1, c2, c3))
 

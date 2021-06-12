@@ -73,18 +73,18 @@ Blueberry.py file has a class `Blueberry` that is designed to be imported into y
 
 LONG path response:
 ```
-{'path': 'long_path', 'packet_index': 59, 'channel1': 194, 'channel2': 261, 'channel3': 317, 'sp': 154, 'dp': 55, 'hr': 0, 'hrv': 0, 'ml': 70, 'temperature': 5397}
+{'path': 'long_path', 'packet_index': 59, 'channel1': 194, 'channel2': 261, 'channel3': 317, 'ptt_mean_amplitude': 154, 'ptt_ratio': 55, 'hr': 0, 'hrv': 0, 'ml': 70, 'temperature': 5397}
 ```
 SHORT path response:
 ```
 {'path': 'short_path', 'packet_index': 11, 'channel1': 29074, 'channel2': 13263, 'channel3': 76933}
 ```
 ### Estimated Metrics (not for medical use, experimental):
-DP = diastolic blood pressure
-SP = systolic blood pressure
-HR = heart rate
-HRV = heart rate variability
-ML = mental_load
+ptt_mean_amplitude = value computed based pulse transit time (ms) and change in HbO 
+ppt_ratio = value computed based on multuple pulse transit times as a ratio
+HR = heart rate peak estimation, WIP on pod
+HRV = heart rate variability, WIP on pod
+ML = mental_load, WIP on pod
 temperature = body temperature (experimental)
 
 ## Help
